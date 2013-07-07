@@ -26,8 +26,9 @@ import javax.xml.namespace.QName
 
 /**
  * XQS is a Scala API that sits atop XQJ and provides Scala interfaces and metaphors
- * Comments and suggestions are welcome. Use this file as you will. 
- * @author Dino Fancellu 
+ * Comments and suggestions are welcome. Use this file as you will.
+ * Would be nice if I got attribution. Thanks. 
+ * @author Dino Fancellu (Felstar Ltd)
  * @version 0.8
  * 
  */
