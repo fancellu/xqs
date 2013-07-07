@@ -3,7 +3,7 @@
 
 *Author: [Dino Fancellu](http://dinofancellu.com)*
 
-**XQS** is Scala Library to invoke XQuery against an XML DataSource such as MarkLogic, eXist, BaseX and Sedna as well as Saxon, Zorba and Oracle XDB while eliminating vendor lock in.
+**XQS** is a Scala Library to invoke XQuery against an XML DataSource such as MarkLogic, eXist, BaseX and Sedna as well as Saxon, Zorba and Oracle XDB while eliminating vendor lock in.
 
 It should work with any compliant **XQJ** driver, having already been tested against the **[XQJ.net](http://xqj.net)** drivers ( **BaseX**, **Sedna**, **eXist**, **Marklogic** ) and **Saxon**
 
