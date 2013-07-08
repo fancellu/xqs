@@ -7,6 +7,8 @@
 
 It should work with any compliant **XQJ** driver, having already been tested against the **[XQJ.net](http://xqj.net)** drivers ( **BaseX**, **Sedna**, **eXist**, **Marklogic** ) and **Saxon**
 
+Requires Scala 2.10+
+
 Firstly, make sure that your **XQJ** drivers jars are included and are working.
 Perhaps run some java to make sure its all up and running.
 
