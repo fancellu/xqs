@@ -1,28 +1,26 @@
 package com.felstar.xqs
 
 import java.io.StringReader
-
 import org.xml.sax.InputSource
-
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXResult
-
 import scala.xml.Attribute
 import scala.xml.Node
 import scala.xml.Null
 import scala.xml.Text
 import scala.xml.XML
 import scala.xml.parsing.NoBindingFactoryAdapter
-
 import javax.xml.xquery.XQConstants
 import javax.xml.xquery.XQItem
 import javax.xml.xquery.XQSequence
 import javax.xml.xquery.XQConnection
 import javax.xml.xquery.XQDynamicContext
 import javax.xml.xquery.XQItemType
-
 import javax.xml.namespace.QName
+import javax.xml.xquery.XQExpression
+import javax.xml.xquery.XQPreparedExpression
+
 
 /**
  * XQS is a Scala API that sits atop XQJ and provides Scala interfaces and metaphors
@@ -74,14 +72,14 @@ object XQS {
           case x =>  x
         })
       }
-      seq reverse
+      s.close();seq reverse
     }
 
    implicit def toSeqString(s: XQSequence):Seq[String] =
     {
       var seq = Seq[String]()
       while (s.next()) seq +:= s.getItemAsString(null)
-      seq reverse
+      s.close();seq reverse
     }
      
    
@@ -89,7 +87,7 @@ object XQS {
     {
       var seq = Seq[Int]()
       while (s.next()) seq +:= s.getInt()
-      seq reverse
+      s.close();seq reverse
     }
     
     implicit def toSeqDecimal(s: XQSequence):Seq[scala.math.BigDecimal] =
@@ -107,18 +105,20 @@ object XQS {
 	        case x:java.lang.Integer=>scala.math.BigDecimal(x)
 	        case x:java.lang.Short=>scala.math.BigDecimal(x.shortValue())
 	        case x:java.lang.Byte=>scala.math.BigDecimal(x.intValue())
+	        case x:java.lang.String=>scala.math.BigDecimal(x)
 	      })
         }
-      seq reverse
+      s.close();seq reverse
     }
   
-  implicit def toSeqXML(seq: Seq[String]) = seq.map(XML.loadString)
+  implicit def toSeqXML(seq: Seq[String]):Seq[scala.xml.Elem] = seq.map(XML.loadString)
 
   implicit def toSeqXML(s: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(s))  
   
  trait ImplicitXQConnection
  {
   implicit class MyXQConnection(val conn:XQConnection) {
+    
     def executeQuery(query:String)=conn.prepareExpression(query).executeQuery()
     def executeQuery(query:java.io.InputStream)=conn.prepareExpression(query).executeQuery()
     def executeQuery(query:java.io.Reader )=conn.prepareExpression(query).executeQuery()
