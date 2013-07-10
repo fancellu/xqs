@@ -1,26 +1,27 @@
 package com.felstar.xqs
 
 import java.io.StringReader
-import org.xml.sax.InputSource
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.sax.SAXResult
+
 import scala.xml.Attribute
 import scala.xml.Node
 import scala.xml.Null
 import scala.xml.Text
 import scala.xml.XML
 import scala.xml.parsing.NoBindingFactoryAdapter
-import javax.xml.xquery.XQConstants
-import javax.xml.xquery.XQItem
-import javax.xml.xquery.XQSequence
-import javax.xml.xquery.XQConnection
-import javax.xml.xquery.XQDynamicContext
-import javax.xml.xquery.XQItemType
-import javax.xml.namespace.QName
-import javax.xml.xquery.XQExpression
-import javax.xml.xquery.XQPreparedExpression
 
+import org.xml.sax.InputSource
+
+import javax.xml.namespace.QName
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.sax.SAXResult
+import javax.xml.xquery.XQConnection
+import javax.xml.xquery.XQConstants
+import javax.xml.xquery.XQDynamicContext
+import javax.xml.xquery.XQItem
+import javax.xml.xquery.XQItemType
+import javax.xml.xquery.XQPreparedExpression
+import javax.xml.xquery.XQSequence
 
 /**
  * XQS is a Scala API that sits atop XQJ and provides Scala interfaces and metaphors
@@ -35,13 +36,39 @@ object XQS {
   import AllImplicits._
   
   val tFactory = javax.xml.transform.TransformerFactory.newInstance()
-
   val builderFactory= DocumentBuilderFactory.newInstance();
-  
-  implicit def toQName(name: String): QName = {
-    new QName(name)
+
+  private var seq2expression=Map[XQSequence,XQPreparedExpression]()
+	
+  def execute(expr:XQPreparedExpression)={     
+    val seq=expr.executeQuery()
+    synchronized {
+	 seq2expression+=(seq->expr)
+    }
+	seq
+  }
+	// closes sequence and its expression
+  def closeResultSequence(seq:XQSequence){ 
+	//strictly not needed, closing expression should do it
+	seq.close
+	synchronized {
+	 seq2expression.get(seq).foreach(_.close)
+	 seq2expression-=seq
+    }
+  }
+   // Useful if you simply want to close all expressions
+  def closeAllResultSequences
+  {
+    synchronized {
+     seq2expression.keys.foreach(closeResultSequence(_)) 
+    }   
   }
   
+	// useful for debug, should be empty at end of run
+  def getExpressionMap=seq2expression
+  
+  implicit def toQName(name: String): QName = new QName(name)
+    
   implicit def toScala(dom: _root_.org.w3c.dom.Node): Node = {
     val adapter = new NoBindingFactoryAdapter
     tFactory.newTransformer().transform(new DOMSource(dom), new SAXResult(adapter))
@@ -61,8 +88,7 @@ object XQS {
   implicit def toIterator[A](s: Seq[A]):java.util.Iterator[A] 
 		  =scala.collection.JavaConverters.seqAsJavaListConverter(s).asJava.iterator()
   
-  def toSeqAnyRef(s: XQSequence):Seq[AnyRef] =
-    {
+  def toSeqAnyRef(s: XQSequence):Seq[AnyRef] = {
       var seq = Seq[AnyRef]()
       while (s.next()) {
         seq +:= (s.getObject() match {
@@ -72,26 +98,22 @@ object XQS {
           case x =>  x
         })
       }
-      s.close();seq reverse
+      closeResultSequence(s);seq reverse
     }
 
-   implicit def toSeqString(s: XQSequence):Seq[String] =
-    {
+   implicit def toSeqString(s: XQSequence):Seq[String] = {
       var seq = Seq[String]()
       while (s.next()) seq +:= s.getItemAsString(null)
-      s.close();seq reverse
+      closeResultSequence(s);seq reverse
     }
-     
    
-    implicit def toSeqInt(s: XQSequence):Seq[Int] =
-    {
+    implicit def toSeqInt(s: XQSequence):Seq[Int] = {
       var seq = Seq[Int]()
       while (s.next()) seq +:= s.getInt()
-      s.close();seq reverse
+      closeResultSequence(s);seq reverse
     }
     
-    implicit def toSeqDecimal(s: XQSequence):Seq[scala.math.BigDecimal] =
-    {
+    implicit def toSeqDecimal(s: XQSequence):Seq[scala.math.BigDecimal] = {
       var seq = Seq[scala.math.BigDecimal]()
       
       while (s.next())
@@ -108,44 +130,37 @@ object XQS {
 	        case x:java.lang.String=>scala.math.BigDecimal(x)
 	      })
         }
-      s.close();seq reverse
+      closeResultSequence(s);seq reverse
     }
   
   implicit def toSeqXML(seq: Seq[String]):Seq[scala.xml.Elem] = seq.map(XML.loadString)
-
   implicit def toSeqXML(s: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(s))  
   
- trait ImplicitXQConnection
- {
-  implicit class MyXQConnection(val conn:XQConnection) {
-    
-    def executeQuery(query:String)=conn.prepareExpression(query).executeQuery()
-    def executeQuery(query:java.io.InputStream)=conn.prepareExpression(query).executeQuery()
-    def executeQuery(query:java.io.Reader )=conn.prepareExpression(query).executeQuery()
-    
+ trait ImplicitXQConnection{
+  implicit class MyXQConnection(val conn:XQConnection) {   
+    def executeQuery(query:String)=execute(conn.prepareExpression(query))
+    def executeQuery(query:java.io.InputStream)=execute(conn.prepareExpression(query))
+    def executeQuery(query:java.io.Reader )=execute(conn.prepareExpression(query))    
     def executeQuery(query:String,xml:scala.xml.Elem)={
-      conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml).executeQuery()
-    }
-    
+      execute(conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml))
+    }   
     def executeQuery(query:java.io.InputStream,xml:scala.xml.Elem)={
-       conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml).executeQuery()
-    }
-    
+       execute(conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml))
+    }   
     def executeQuery(query:java.io.Reader,xml:scala.xml.Elem)={
-       conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml).executeQuery()
+       execute(conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml))
     }
     
     def apply(query:String,xml:scala.xml.Elem)=executeQuery(query,xml)
     def apply(query:java.io.InputStream,xml:scala.xml.Elem)=executeQuery(query,xml)
-    def apply(query:java.io.Reader,xml:scala.xml.Elem)=executeQuery(query,xml)
-    
+    def apply(query:java.io.Reader,xml:scala.xml.Elem)=executeQuery(query,xml)    
     def apply(query:String)=executeQuery(query)
     def apply(query:java.io.InputStream)=executeQuery(query)
     def apply(query:java.io.Reader)=executeQuery(query)
   }
  }
   
-  trait ImplicitXQExpression  {
+  trait ImplicitXQExpression  {    
    implicit class  MyXQDynamicContext[A <:XQDynamicContext](val context:A) {    
     def document(varName:javax.xml.namespace.QName, value:String , baseURI:String)= {
       context.bindDocument(varName, value, baseURI, null);context
@@ -157,13 +172,11 @@ object XQS {
     def document(varName:javax.xml.namespace.QName, 
         value:java.io.Reader,  baseURI:String)= {
       context.bindDocument(varName, value, baseURI, null);context
-    }
-    
+    }    
     def document(varName:javax.xml.namespace.QName, 
         value:java.io.InputStream ,baseURI:String)= {
       context.bindDocument(varName, value, baseURI,null);context
-    }    
-     
+    }       
      def boolean(varName:javax.xml.namespace.QName,value:Boolean)= {
         context.bindBoolean(varName,value,null);context
      }
@@ -205,5 +218,5 @@ object XQS {
    }
   }
   
-  object AllImplicits extends ImplicitXQConnection with ImplicitXQExpression
+  object AllImplicits extends ImplicitXQConnection with ImplicitXQExpression  
 }
