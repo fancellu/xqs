@@ -90,47 +90,49 @@ object XQS {
   
   def toSeqAnyRef(s: XQSequence):Seq[AnyRef] = {
       var seq = Seq[AnyRef]()
-      while (s.next()) {
+      try {
+       while (s.next()) {
         seq +:= (s.getObject() match {
           case x: org.w3c.dom.Element => toScala(x)
           case x: org.w3c.dom.Attr => toScala(x)
           case x: org.w3c.dom.Node => toScala(x)          
           case x =>  x
         })
-      }
-      closeResultSequence(s);seq reverse
+       }
+      } finally { closeResultSequence(s) }
+      seq reverse
     }
 
    implicit def toSeqString(s: XQSequence):Seq[String] = {
       var seq = Seq[String]()
-      while (s.next()) seq +:= s.getItemAsString(null)
-      closeResultSequence(s);seq reverse
+      try { while (s.next()) seq +:= s.getItemAsString(null)} 
+       finally {closeResultSequence(s)}
+      seq reverse
     }
    
     implicit def toSeqInt(s: XQSequence):Seq[Int] = {
       var seq = Seq[Int]()
-      while (s.next()) seq +:= s.getInt()
-      closeResultSequence(s);seq reverse
+      try { while (s.next()) seq +:= s.getInt()} finally {closeResultSequence(s)}
+      seq reverse
     }
     
     implicit def toSeqDecimal(s: XQSequence):Seq[scala.math.BigDecimal] = {
       var seq = Seq[scala.math.BigDecimal]()
-      
-      while (s.next())
-        {
-	      seq+:=(s.getObject() match
-	      {
-	        case x:java.math.BigDecimal=>scala.math.BigDecimal(x)
-	        case x:java.math.BigInteger=>scala.math.BigDecimal(x)
-	        case x:java.lang.Double=>scala.math.BigDecimal(x)
-	        case x:java.lang.Long=>scala.math.BigDecimal(x)
-	        case x:java.lang.Integer=>scala.math.BigDecimal(x)
-	        case x:java.lang.Short=>scala.math.BigDecimal(x.shortValue())
-	        case x:java.lang.Byte=>scala.math.BigDecimal(x.intValue())
-	        case x:java.lang.String=>scala.math.BigDecimal(x)
-	      })
-        }
-      closeResultSequence(s);seq reverse
+	  try {
+	      while (s.next()) {
+	        seq +:= (s.getObject() match {
+	          case x: java.math.BigDecimal => scala.math.BigDecimal(x)
+	          case x: java.math.BigInteger => scala.math.BigDecimal(x)
+	          case x: java.lang.Double => scala.math.BigDecimal(x)
+	          case x: java.lang.Long => scala.math.BigDecimal(x)
+	          case x: java.lang.Integer => scala.math.BigDecimal(x)
+	          case x: java.lang.Short => scala.math.BigDecimal(x.shortValue())
+	          case x: java.lang.Byte => scala.math.BigDecimal(x.intValue())
+	          case x: java.lang.String => scala.math.BigDecimal(x)
+	        })
+	      }
+	  } finally { closeResultSequence(s) }
+      seq reverse
     }
   
   implicit def toSeqXML(seq: Seq[String]):Seq[scala.xml.Elem] = seq.map(XML.loadString)
