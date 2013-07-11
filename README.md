@@ -186,7 +186,7 @@ val ret2=toSeqAnyRef(conn.prepareExpression("""
  		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
     .int("x",1234).int("y",9999).string("name","Dino")
     .document("mydoc", <somedoc>{str}</somedoc>)
-    .sequence("list",conn.createSequence(List(1,"some text",99))).executeQuery())
+    .sequence("list",conn.createSequence(List(1,"some text",99))).execute())
  
 ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 ```

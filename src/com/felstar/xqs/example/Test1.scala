@@ -1,8 +1,8 @@
 package com.felstar.xqs.example
 
-import scala.xml.Attribute
-import scala.xml.Elem
-import scala.xml.PrettyPrinter
+import xml.Attribute
+import xml.Elem
+import xml.PrettyPrinter
 
 import com.felstar.xqs.XQS._
 import com.felstar.xqs.XQS.AllImplicits._
@@ -13,27 +13,27 @@ object Test1{
 
 	def main(args: Array[String]): Unit = {
 	  
-	  	//val xqs = new net.sf.saxon.xqj.SaxonXQDataSource()
-	  	val xqs= new net.xqj.basex.BaseXXQDataSource()
-	  	//val xqs= new net.xqj.sedna.SednaXQDataSource()
-	  	//val xqs= new  net.xqj.exist.ExistXQDataSource()
-	  	//val xqs= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
+	  	//val xqs = new net.sf.saxon.xqj.SaxonXQDataSource
+	  	val source= new net.xqj.basex.BaseXXQDataSource
+	  	//val source= new net.xqj.sedna.SednaXQDataSource
+	  	//val source= new  net.xqj.exist.ExistXQDataSource
+	  	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource
 
-		if (xqs.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
-			xqs.setProperty("serverName", "localhost")
-			xqs.setProperty("port", "1984")
+		if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
+			source.setProperty("serverName", "localhost")
+			source.setProperty("port", "1984")
 		}
 		else
-		if (xqs.isInstanceOf[net.xqj.sedna.SednaXQDataSource]) {
-			xqs.setProperty("serverName", "localhost")
-			xqs.setProperty("databaseName", "testdb")
+		if (source.isInstanceOf[net.xqj.sedna.SednaXQDataSource]) {
+			source.setProperty("serverName", "localhost")
+			source.setProperty("databaseName", "testdb")
 		}
 
 		// Change USERNAME and PASSWORD values
-		val USERNAME="admin"
-		val PASSWORD="password"
+		val USERNAME="USERNAME"
+		val PASSWORD="PASSWORD"
 
-		val conn = xqs.getConnection(USERNAME, PASSWORD) 
+		val conn = source.getConnection(USERNAME, PASSWORD) 
 
 		println("-----1 to 4 as strings----------")
 
@@ -49,7 +49,7 @@ object Test1{
 		  conn("""1.0,2.0,3.1415926536,xs:double(123.2),xs:integer(12),
 				xs:byte(120),xs:long(11111),xs:short(44),xs:int(-5),xs:negativeInteger(-44),
 				xs:nonNegativeInteger(45)""")
-		decimals.foreach(println)
+		decimals.foreach(println)		
 
 		println("----above < 100 -----------")
 		println(for (x<-decimals if x<100) yield x)
@@ -62,13 +62,13 @@ object Test1{
 		    'xxx',<root attr='hello'>somet<mixed>MIX</mixed>hing</root>,
 		    <thing attr='alone'/>/@*)"""))
 		refs.foreach(_ match {
-		 case x: java.lang.Number => println(x.doubleValue() + 1000)
+		 case x: java.lang.Number => println(x.doubleValue + 1000)
 		 case x: Elem => println("Element " + x)
 		 case x: Attribute => println("Atrribute " + x)
-		 case x => println(x + " " + x.getClass())
+		 case x => println(x + " " + x.getClass)
 		})
 
-		if (xqs.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
+		if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
 			println("----db query-----------")
 			val xmls: Seq[scala.xml.Elem] = 
 			  conn("collection('shaks200')/PLAY[contains(lower-case(TITLE),'tragedy')]")
@@ -108,9 +108,13 @@ object Test1{
 		 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
 		    .int("x",1234).int("y",9999).string("name","Dino")
 		    .document("mydoc", <somedoc>{str}</somedoc>)
-		    .sequence("list",conn.createSequence(Seq(1,"some text",99))).executeQuery())
+		    .sequence("list",conn.createSequence(Seq(1,"some text",99))).execute())
 		 
 		ret2 foreach(x=>println(x+"\n\t"+x.getClass))
+		
+		println("----printing expression map, should be empty----")
+		val expr=getExpressionMap
+		println(expr)
 		
 		conn.close()
 	}

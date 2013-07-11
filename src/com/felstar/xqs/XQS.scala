@@ -2,12 +2,12 @@ package com.felstar.xqs
 
 import java.io.StringReader
 
-import scala.xml.Attribute
-import scala.xml.Node
-import scala.xml.Null
-import scala.xml.Text
-import scala.xml.XML
-import scala.xml.parsing.NoBindingFactoryAdapter
+import xml.Attribute
+import xml.Node
+import xml.Null
+import xml.Text
+import xml.XML
+import xml.parsing.NoBindingFactoryAdapter
 
 import org.xml.sax.InputSource
 
@@ -22,6 +22,7 @@ import javax.xml.xquery.XQItem
 import javax.xml.xquery.XQItemType
 import javax.xml.xquery.XQPreparedExpression
 import javax.xml.xquery.XQSequence
+import javax.xml.xquery.XQResultSequence
 
 /**
  * XQS is a Scala API that sits atop XQJ and provides Scala interfaces and metaphors
@@ -35,7 +36,7 @@ object XQS {
 
   import AllImplicits._
   
-  val tFactory = javax.xml.transform.TransformerFactory.newInstance()
+  val tFactory = javax.xml.transform.TransformerFactory.newInstance
   val builderFactory= DocumentBuilderFactory.newInstance();
 
   private var seq2expression=Map[XQSequence,XQPreparedExpression]()
@@ -83,7 +84,7 @@ object XQS {
   implicit def toDomSource(node: scala.xml.Node): DOMSource =new DOMSource(toDom(node))
    
   implicit def toScala(attr: org.w3c.dom.Attr): Attribute 
-  			= Attribute(None, attr.getName(), Text(attr.getValue()), Null)  
+  			= Attribute(None, attr.getName, Text(attr.getValue), Null)  
 
   implicit def toIterator[A](s: Seq[A]):java.util.Iterator[A] 
 		  =scala.collection.JavaConverters.seqAsJavaListConverter(s).asJava.iterator()
@@ -92,7 +93,7 @@ object XQS {
       var seq = Seq[AnyRef]()
       try {
        while (s.next()) {
-        seq +:= (s.getObject() match {
+        seq +:= (s.getObject match {
           case x: org.w3c.dom.Element => toScala(x)
           case x: org.w3c.dom.Attr => toScala(x)
           case x: org.w3c.dom.Node => toScala(x)          
@@ -112,7 +113,7 @@ object XQS {
    
     implicit def toSeqInt(s: XQSequence):Seq[Int] = {
       var seq = Seq[Int]()
-      try { while (s.next()) seq +:= s.getInt()} finally {closeResultSequence(s)}
+      try { while (s.next()) seq +:= s.getInt} finally {closeResultSequence(s)}
       seq reverse
     }
     
@@ -120,14 +121,14 @@ object XQS {
       var seq = Seq[scala.math.BigDecimal]()
 	  try {
 	      while (s.next()) {
-	        seq +:= (s.getObject() match {
+	        seq +:= (s.getObject match {
 	          case x: java.math.BigDecimal => scala.math.BigDecimal(x)
 	          case x: java.math.BigInteger => scala.math.BigDecimal(x)
 	          case x: java.lang.Double => scala.math.BigDecimal(x)
 	          case x: java.lang.Long => scala.math.BigDecimal(x)
 	          case x: java.lang.Integer => scala.math.BigDecimal(x)
-	          case x: java.lang.Short => scala.math.BigDecimal(x.shortValue())
-	          case x: java.lang.Byte => scala.math.BigDecimal(x.intValue())
+	          case x: java.lang.Short => scala.math.BigDecimal(x.shortValue)
+	          case x: java.lang.Byte => scala.math.BigDecimal(x.intValue)
 	          case x: java.lang.String => scala.math.BigDecimal(x)
 	        })
 	      }
@@ -163,7 +164,13 @@ object XQS {
  }
   
   trait ImplicitXQExpression  {    
+    
+   implicit class MyXQExpression[A <:XQPreparedExpression](val expr:A) {
+     def execute(): XQResultSequence=XQS.execute(expr)
+   }
+    
    implicit class  MyXQDynamicContext[A <:XQDynamicContext](val context:A) {    
+     
     def document(varName:javax.xml.namespace.QName, value:String , baseURI:String)= {
       context.bindDocument(varName, value, baseURI, null);context
     }
