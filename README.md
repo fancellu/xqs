@@ -28,16 +28,16 @@ The next few steps are very familiar to any XQJ Developer:
 
 Pull in your desired XQDataSource, e.g.
 ```scala
-val xqs= new net.xqj.basex.BaseXXQDataSource()
+val source= new net.xqj.basex.BaseXXQDataSource()
 ```
 If you are connecting to an **XQJ** datatbase (like **BaseX**) and not an **XQJ** processor (like Saxon) you may then need to specify login properties, e.g.
 ```scala
-xqs.setProperty("serverName", "localhost")
-xqs.setProperty("port", "1984")
+source.setProperty("serverName", "localhost")
+source.setProperty("port", "1984")
 ```
 Similarly you may well need to login
 ```scala
-val conn = xqs.getConnection("USERNAME", "PASSWORD")
+val conn = source.getConnection("USERNAME", "PASSWORD")
 ```
 # Now the magic starts, some example code: #
 
@@ -187,7 +187,9 @@ val ret2=toSeqAnyRef(conn.prepareExpression("""
     .int("x",1234).int("y",9999).string("name","Dino")
     .document("mydoc", <somedoc>{str}</somedoc>)
     .sequence("list",conn.createSequence(List(1,"some text",99))).execute())
- 
+ 		 // note, we call execute at the end, not executeQuery
+		 // this is so that we remember seq->expr mapping for later cleanup/close
+  
 ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 ```
 >     Dino

@@ -13,11 +13,11 @@ object Test1{
 
 	def main(args: Array[String]): Unit = {
 	  
-	  	//val xqs = new net.sf.saxon.xqj.SaxonXQDataSource
-	  	val source= new net.xqj.basex.BaseXXQDataSource
-	  	//val source= new net.xqj.sedna.SednaXQDataSource
-	  	//val source= new  net.xqj.exist.ExistXQDataSource
-	  	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource
+	  	//val xqs = new net.sf.saxon.xqj.SaxonXQDataSource()
+	  	val source= new net.xqj.basex.BaseXXQDataSource()
+	  	//val source= new net.xqj.sedna.SednaXQDataSource()
+	  	//val source= new  net.xqj.exist.ExistXQDataSource()
+	  	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
 
 		if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
 			source.setProperty("serverName", "localhost")
@@ -109,7 +109,8 @@ object Test1{
 		    .int("x",1234).int("y",9999).string("name","Dino")
 		    .document("mydoc", <somedoc>{str}</somedoc>)
 		    .sequence("list",conn.createSequence(Seq(1,"some text",99))).execute())
-		 
+		 // note, we call execute at the end, not executeQuery
+		 // this is so that we remember seq->expr mapping for later cleanup/close
 		ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 		
 		println("----printing expression map, should be empty----")

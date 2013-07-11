@@ -29,7 +29,7 @@ import javax.xml.xquery.XQResultSequence
  * Comments and suggestions are welcome. Use this file as you will.
  * Would be nice if I got attribution. Thanks. 
  * @author Dino Fancellu (Felstar Ltd)
- * @version 0.8
+ * @version 0.82
  * 
  */
 object XQS {
