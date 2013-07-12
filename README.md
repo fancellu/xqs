@@ -230,6 +230,29 @@ val expr2=conn.prepareExpression("""declare variable $list as item()* external;
 >        55
 >        15
 
+##Chained queries----method 1
+```scala
+val seq:Seq[Int]=conn("1 to 3")		
+	 val sum:Seq[Int]=conn.prepareExpression(
+	     """declare variable $list as item()* external;sum($list)""").
+	            sequence("list",conn.createSequence(100+:seq)).execute()		           
+	 sum foreach(println)
+```
+
+>      106
+
+##Chained queries----method 2
+```scala
+val seq:XQResultSequence=conn("1 to 3")		
+	 val sum:Seq[Int]=conn.prepareExpression(
+	     """declare variable $list as item()* external;sum($list)""").
+	            sequence("list",seq).execute()		           
+	 sum foreach(println)
+	 // first sequence is not consumed via Scala, so needs to be closed by hand
+	 closeResultSequence(seq)
+```
+
+>      6
 
 ##A few items of note
 
