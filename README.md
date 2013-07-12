@@ -212,17 +212,19 @@ ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 ##Rebinding
 ```scala
 val expr2=conn.prepareExpression("""declare variable $list as item()* external;
-		    sum($list)""").sequence("list",conn.createSequence((1 to 10).toList))
-		 // execute query doesn't put seq->expression in map, so we don't close expression
-		 // Change below to execute() to see second binding complain of closed expression
-		val sum1:Seq[Int]=expr2.executeQuery();  		
-		sum1 foreach(println)
+    sum($list)""").sequence("list",conn.createSequence((1 to 10).toList))
+
+// execute query doesn't put seq->expression in map, so we don't close expression
+// Change below to execute() to see second binding complain of closed expression
+	val sum1:Seq[Int]=expr2.executeQuery();  		
+	sum1 foreach(println)
 		
-		expr2.sequence("list",conn.createSequence((1 to 5).toList))
-		 // we call execute now, which puts seq->expression in map,
-		 // so expression is closed. Please don't use it again.
-		val sum2:Seq[Int]=expr2.execute();  		
-		sum2 foreach(println)
+	expr2.sequence("list",conn.createSequence((1 to 5).toList))
+
+	 // we call execute now, which puts seq->expression in map,
+	 // so expression is closed. Please don't use it again.
+	val sum2:Seq[Int]=expr2.execute();  		
+	sum2 foreach(println)
 ```
 
 >	55
