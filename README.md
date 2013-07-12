@@ -228,6 +228,7 @@ val expr2=conn.prepareExpression("""declare variable $list as item()* external;
 ```
 
 >	55
+
 >	15
 
 
