@@ -186,7 +186,7 @@ val ret2=toSeqAnyRef(conn.prepareExpression("""
  		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
     .int("x",1234).int("y",9999).string("name","Dino")
     .document("mydoc", <somedoc>{str}</somedoc>)
-    .sequence("list",conn.createSequence(List(1,"some text",99))).execute())
+    .sequence("list",conn.createSequence(Seq(1,"some text",99))).execute())
  		 // note, we call execute at the end, not executeQuery
 		 // this is so that we remember seq->expr mapping for later cleanup/close
   
@@ -208,6 +208,26 @@ ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 >       class scala.xml.Elem
 >     <somedoc>my text!!</somedoc>
 >       class scala.xml.Elem
+
+##Rebinding
+```scala
+val expr2=conn.prepareExpression("""declare variable $list as item()* external;
+		    sum($list)""").sequence("list",conn.createSequence((1 to 10).toList))
+		 // execute query doesn't put seq->expression in map, so we don't close expression
+		 // Change below to execute() to see second binding complain of closed expression
+		val sum1:Seq[Int]=expr2.executeQuery();  		
+		sum1 foreach(println)
+		
+		expr2.sequence("list",conn.createSequence((1 to 5).toList))
+		 // we call execute now, which puts seq->expression in map,
+		 // so expression is closed. Please don't use it again.
+		val sum2:Seq[Int]=expr2.execute();  		
+		sum2 foreach(println)
+```
+
+>	55
+>	15
+
 
 ##A few items of note
 
