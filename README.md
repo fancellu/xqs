@@ -227,9 +227,8 @@ val expr2=conn.prepareExpression("""declare variable $list as item()* external;
 	sum2 foreach(println)
 ```
 
->	55
-
->	15
+>        55
+>        15
 
 
 ##A few items of note
