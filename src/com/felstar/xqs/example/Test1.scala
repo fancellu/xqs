@@ -14,8 +14,8 @@ object Test1{
 
 def main(args: Array[String]): Unit = {
   
-  	//val source = new net.sf.saxon.xqj.SaxonXQDataSource()
-  	val source= new net.xqj.basex.BaseXXQDataSource()
+  	val source = new net.sf.saxon.xqj.SaxonXQDataSource()
+  	//val source= new net.xqj.basex.BaseXXQDataSource()
   	//val source= new net.xqj.sedna.SednaXQDataSource()
   	//val source= new  net.xqj.exist.ExistXQDataSource()
   	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
@@ -130,6 +130,28 @@ def main(args: Array[String]): Unit = {
 	ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 			
 	{
+	  println("----alternate binding method-------")
+	  
+	  val str="my text!!"
+	 
+	  val ret2=toSeqAnyRef(conn.executeQueryWith(""" 
+	 		declare variable $x as xs:integer external;
+	 		declare variable $y as xs:integer external;
+	 		declare variable $name as xs:string external;
+	 		declare variable $mydoc as node() external;
+	 		declare variable $list as item()* external; 
+	 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
+	 		{p=>
+	         p.int("x",1234);p.int("y",9999);p.string("name","Dino")
+	         p.document("mydoc", <somedoc>{str}</somedoc>)
+	         p.sequence("list",conn.createSequence(Seq(1,"some text",99)))
+	 		} 
+	    )
+	
+	  ret2 foreach(x=>println(x+"\n\t"+x.getClass))
+	  
+	}
+	{
 	 println("----chained queries----method 1-------") 
 	 val seq:Seq[Int]=conn("1 to 3")		
 	 val sum:Seq[Int]=conn.prepareExpression(
@@ -147,6 +169,7 @@ def main(args: Array[String]): Unit = {
 	 // first sequence is not consumed via Scala, so needs to be closed by hand
 	 closeResultSequence(seq) 
 	}
+	
 	println("----printing expression map, should be empty----")
 	val expr=getExpressionMap
 	println(expr)

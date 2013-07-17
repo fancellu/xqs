@@ -254,6 +254,42 @@ val seq:XQResultSequence=conn("1 to 3")
 
 >      6
 
+##Alternate binding method
+```scala
+val str="my text!!"
+	 
+val ret2=toSeqAnyRef(conn.executeQueryWith(""" 
+ 		declare variable $x as xs:integer external;
+ 		declare variable $y as xs:integer external;
+ 		declare variable $name as xs:string external;
+ 		declare variable $mydoc as node() external;
+ 		declare variable $list as item()* external; 
+ 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
+ 		{p=>
+         p.int("x",1234);p.int("y",9999);p.string("name","Dino")
+         p.document("mydoc", <somedoc>{str}</somedoc>)
+         p.sequence("list",conn.createSequence(Seq(1,"some text",99)))
+ 		} 
+    )
+ret2 foreach(x=>println(x+"\n\t"+x.getClass))
+```
+>     Dino
+>       class java.lang.String	 
+>     	
+> 		class java.lang.String
+>     11233
+>       class java.math.BigInteger
+>     list=
+>       class java.lang.String
+>     <x>1</x>
+>       class scala.xml.Elem
+>     <x>some text</x>
+>       class scala.xml.Elem
+>     <x>99</x>
+>       class scala.xml.Elem
+>     <somedoc>my text!!</somedoc>
+>       class scala.xml.Elem
+
 ##A few items of note
 
 The connection is never closed by XQS, in the same way in that it is not opened by it either. That is up to you.

@@ -50,7 +50,6 @@ object XQS {
   }
 	// closes sequence and its expression
   def closeResultSequence(seq:XQSequence){ 
-	//strictly not needed, closing expression should do it
 	seq.close
 	synchronized {
 	 seq2expression.get(seq).foreach(_.close)
@@ -144,6 +143,7 @@ object XQS {
     def executeQuery(query:String)=execute(conn.prepareExpression(query))
     def executeQuery(query:java.io.InputStream)=execute(conn.prepareExpression(query))
     def executeQuery(query:java.io.Reader )=execute(conn.prepareExpression(query))    
+    
     def executeQuery(query:String,xml:scala.xml.Elem)={
       execute(conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml))
     }   
@@ -154,9 +154,27 @@ object XQS {
        execute(conn.prepareExpression(query).document(XQConstants.CONTEXT_ITEM,xml))
     }
     
+    def executeQueryWith(query:String)(f: XQPreparedExpression=> Unit)={
+      val expr=conn.prepareExpression(query)
+      f(expr)
+      execute(expr)
+    }
+    
+    def executeQueryWith(query:java.io.InputStream)(f: XQPreparedExpression=> Unit)={
+      val expr=conn.prepareExpression(query)
+      f(expr)
+      execute(expr)
+    }
+    
+    def executeQueryWith(query:java.io.Reader)(f: XQPreparedExpression=> Unit)={
+      val expr=conn.prepareExpression(query)
+      f(expr)
+      execute(expr)
+    }
+    
     def apply(query:String,xml:scala.xml.Elem)=executeQuery(query,xml)
     def apply(query:java.io.InputStream,xml:scala.xml.Elem)=executeQuery(query,xml)
-    def apply(query:java.io.Reader,xml:scala.xml.Elem)=executeQuery(query,xml)    
+    def apply(query:java.io.Reader,xml:scala.xml.Elem)=executeQuery(query,xml) 
     def apply(query:String)=executeQuery(query)
     def apply(query:java.io.InputStream)=executeQuery(query)
     def apply(query:java.io.Reader)=executeQuery(query)
