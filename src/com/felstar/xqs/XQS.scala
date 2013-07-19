@@ -1,35 +1,30 @@
 package com.felstar.xqs
 
 import java.io.StringReader
-
 import xml.Attribute
 import xml.Node
 import xml.Null
 import xml.Text
 import xml.XML
 import xml.parsing.NoBindingFactoryAdapter
-
 import org.xml.sax.InputSource
-
 import javax.xml.namespace.QName
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXResult
-import javax.xml.xquery.XQConnection
-import javax.xml.xquery.XQConstants
-import javax.xml.xquery.XQDynamicContext
-import javax.xml.xquery.XQItem
-import javax.xml.xquery.XQItemType
-import javax.xml.xquery.XQPreparedExpression
-import javax.xml.xquery.XQSequence
-import javax.xml.xquery.XQResultSequence
+import javax.xml.xquery._
+import java.util.Date
+import javax.xml.datatype.DatatypeFactory
+import java.util.GregorianCalendar
+import java.util.Calendar
+import javax.xml.datatype.XMLGregorianCalendar
 
 /**
  * XQS is a Scala API that sits atop XQJ and provides Scala interfaces and metaphors
  * Comments and suggestions are welcome. Use this file as you will.
  * Would be nice if I got attribution. Thanks. 
  * @author Dino Fancellu (Felstar Ltd)
- * @version 0.82
+ * @version 0.84
  * 
  */
 object XQS {
@@ -75,7 +70,7 @@ object XQS {
     adapter.rootElem
   }
   
-   implicit def toDom(node: scala.xml.Node): org.w3c.dom.Node = {
+   implicit def toDom(node: scala.xml.Node) = {
     val str=node.buildString(false)
     builderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(str)))
   }
@@ -95,7 +90,7 @@ object XQS {
         seq +:= (s.getObject match {
           case x: org.w3c.dom.Element => toScala(x)
           case x: org.w3c.dom.Attr => toScala(x)
-          case x: org.w3c.dom.Node => toScala(x)          
+          case x: org.w3c.dom.Node => toScala(x)
           case x =>  x
         })
        }
@@ -182,7 +177,7 @@ object XQS {
  }
   
   trait ImplicitXQExpression  {    
-    
+     
    implicit class MyXQExpression[A <:XQPreparedExpression](val expr:A) {
      def execute(): XQResultSequence=XQS.execute(expr)
    }
@@ -241,6 +236,24 @@ object XQS {
      }
      def string(varName:javax.xml.namespace.QName,value:String)= {
         context.bindString(varName,value,null);context
+     }
+     
+     def date(varName:javax.xml.namespace.QName,d:Date):A= {
+       val xmlgc=DatatypeFactory.newInstance().newXMLGregorianCalendarDate(d.getYear()+1900,d.getMonth()+1,d.getDate(),0)     
+       context.bindObject(varName,xmlgc,null);context
+     }
+     def date(varName:javax.xml.namespace.QName,gc:GregorianCalendar):A= {
+       val xmlgc=DatatypeFactory.newInstance().newXMLGregorianCalendarDate(gc.get(Calendar.YEAR),gc.get(Calendar.MONTH)+1,gc.get(Calendar.DAY_OF_MONTH),0)        
+       context.bindObject(varName,xmlgc,null);context
+     }
+     def datetime(varName:javax.xml.namespace.QName,dt:Date)= {       
+       val gc=new GregorianCalendar();gc.setTime(dt)       
+       val xmlgc=DatatypeFactory.newInstance().newXMLGregorianCalendar(gc)      
+       context.bindObject(varName,xmlgc,null);context
+     }
+     def datetime(varName:javax.xml.namespace.QName,gc:GregorianCalendar)= {         
+       val xmlgc=DatatypeFactory.newInstance().newXMLGregorianCalendar(gc)      
+       context.bindObject(varName,xmlgc,null);context
      }
    }
   }

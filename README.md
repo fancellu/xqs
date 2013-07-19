@@ -5,6 +5,8 @@
 
 **XQS** is a Scala Library to invoke XQuery against an XML DataSource such as MarkLogic, eXist, BaseX and Sedna as well as Saxon, Zorba and Oracle XDB while eliminating vendor lock in.
 
+It provides Scala interfaces, metaphors and conversions that lead to tighter code and less boilerplate 
+
 It should work with any compliant **XQJ** driver, having already been tested against the **[XQJ.net](http://xqj.net)** drivers ( **BaseX**, **Sedna**, **eXist**, **Marklogic** ) and **Saxon**
 
 Requires Scala 2.10+
@@ -104,7 +106,7 @@ val refs = toSeqAnyRef(conn("""(1 to  5,44.444,<thing>{10 to 12}</thing>,
  refs.foreach(_ match {
   case x: java.lang.Number => println(x.doubleValue() + 1000)
   case x: Elem => println("Element " + x)
-  case x: Attribute => println("Atrribute " + x)
+  case x: Attribute => println("Attribute " + x)
   case x => println(x + " " + x.getClass())
 })
 ```
