@@ -5,6 +5,8 @@
 
 **XQS** is a Scala Library to invoke XQuery against an XML DataSource such as MarkLogic, eXist, BaseX and Sedna as well as Saxon, Zorba and Oracle XDB while eliminating vendor lock in.
 
+It provides Scala interfaces, metaphors and conversions that lead to tighter code and less boilerplate 
+
 It should work with any compliant **XQJ** driver, having already been tested against the **[XQJ.net](http://xqj.net)** drivers ( **BaseX**, **Sedna**, **eXist**, **Marklogic** ) and **Saxon**
 
 Requires Scala 2.10+
@@ -104,7 +106,7 @@ val refs = toSeqAnyRef(conn("""(1 to  5,44.444,<thing>{10 to 12}</thing>,
  refs.foreach(_ match {
   case x: java.lang.Number => println(x.doubleValue() + 1000)
   case x: Elem => println("Element " + x)
-  case x: Attribute => println("Atrribute " + x)
+  case x: Attribute => println("Attribute " + x)
   case x => println(x + " " + x.getClass())
 })
 ```
@@ -183,9 +185,15 @@ val ret2=toSeqAnyRef(conn.prepareExpression("""
  		declare variable $name as xs:string external;
  		declare variable $mydoc as node() external;
  		declare variable $list as item()* external; 
- 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
+ 		declare variable $date as xs:date external;
+	    declare variable $datetime as xs:dateTime external;
+ 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc,
+ 		$date,$datetime)""")
     .int("x",1234).int("y",9999).string("name","Dino")
     .document("mydoc", <somedoc>{str}</somedoc>)
+    // date and datetime come back as XMLGregorianCalendar
+    .date("date",new java.util.GregorianCalendar())
+	.datetime("datetime",new java.util.Date())
     .sequence("list",conn.createSequence(Seq(1,"some text",99))).execute())
  		 // note, we call execute at the end, not executeQuery
 		 // this is so that we remember seq->expr mapping for later cleanup/close
@@ -208,6 +216,10 @@ ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 >       class scala.xml.Elem
 >     <somedoc>my text!!</somedoc>
 >       class scala.xml.Elem
+>     2013-07-21Z
+>	    class net.xqj.basex.bin.af
+>     2013-07-21T12:31:15.515+01:00
+>	    class net.xqj.basex.bin.af
 
 ##Rebinding
 ```scala
@@ -265,10 +277,9 @@ val ret2=toSeqAnyRef(conn.executeQueryWith("""
  		declare variable $mydoc as node() external;
  		declare variable $list as item()* external; 
  		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
- 		{p=>
-         p.int("x",1234);p.int("y",9999);p.string("name","Dino")
-         p.document("mydoc", <somedoc>{str}</somedoc>)
-         p.sequence("list",conn.createSequence(Seq(1,"some text",99)))
+ 		{_.int("x",1234).int("y",9999).string("name","Dino")
+	         .document("mydoc", <somedoc>{str}</somedoc>)
+	         .sequence("list",conn.createSequence(Seq(1,"some text",99)))
  		} 
     )
 ret2 foreach(x=>println(x+"\n\t"+x.getClass))

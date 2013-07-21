@@ -5,7 +5,7 @@ import xml.Elem
 import xml.PrettyPrinter
 import com.felstar.xqs.XQS._
 import com.felstar.xqs.XQS.AllImplicits._
-import javax.xml.xquery.XQConstants
+
 import javax.xml.xquery.XQResultSequence
 
 //Note, no mention of Dom/Java constructs, just Scala
@@ -14,11 +14,12 @@ object Test1{
 
 def main(args: Array[String]): Unit = {
   
-  	val source = new net.sf.saxon.xqj.SaxonXQDataSource()
-  	//val source= new net.xqj.basex.BaseXXQDataSource()
+  	//val source = new net.sf.saxon.xqj.SaxonXQDataSource()
+  	val source= new net.xqj.basex.BaseXXQDataSource()
   	//val source= new net.xqj.sedna.SednaXQDataSource()
   	//val source= new  net.xqj.exist.ExistXQDataSource()
   	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
+    //val source= new net.xqj.marklogic.MarkLogicXQDataSource()
 
 	if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
 		source.setProperty("serverName", "localhost")
@@ -28,6 +29,12 @@ def main(args: Array[String]): Unit = {
 	if (source.isInstanceOf[net.xqj.sedna.SednaXQDataSource]) {
 		source.setProperty("serverName", "localhost")
 		source.setProperty("databaseName", "testdb")
+	}
+   else
+	if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
+		source.setProperty("serverName", "localhost")
+		source.setProperty("port", "8003")
+		source.setProperty("mode", "conformance")
 	}
 
 	// Change USERNAME and PASSWORD values
@@ -65,7 +72,7 @@ def main(args: Array[String]): Unit = {
 	refs.foreach(_ match {
 	 case x: java.lang.Number => println(x.doubleValue + 1000)
 	 case x: Elem => println("Element " + x)
-	 case x: Attribute => println("Atrribute " + x)
+	 case x: Attribute => println("Attribute " + x)
 	 case x => println(x + " " + x.getClass)
 	})
 
@@ -121,12 +128,19 @@ def main(args: Array[String]): Unit = {
 	 		declare variable $name as xs:string external;
 	 		declare variable $mydoc as node() external;
 	 		declare variable $list as item()* external; 
-	 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
+			declare variable $date as xs:date external;
+	        declare variable $datetime as xs:dateTime external;
+	 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc,
+			$date,$datetime)""")
 	    .int("x",1234).int("y",9999).string("name","Dino")
 	    .document("mydoc", <somedoc>{str}</somedoc>)
+	    // date and datetime come back as XMLGregorianCalendar
+	    .date("date",new java.util.GregorianCalendar())
+	    .datetime("datetime",new java.util.Date())
 	    .sequence("list",conn.createSequence(Seq(1,"some text",99))).execute())
 	 // note, we call execute at the end, not executeQuery
 	 // this is so that we remember seq->expr mapping for later cleanup/close
+	 
 	ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 			
 	{
@@ -141,10 +155,10 @@ def main(args: Array[String]): Unit = {
 	 		declare variable $mydoc as node() external;
 	 		declare variable $list as item()* external; 
 	 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
-	 		{p=>
-	         p.int("x",1234);p.int("y",9999);p.string("name","Dino")
-	         p.document("mydoc", <somedoc>{str}</somedoc>)
-	         p.sequence("list",conn.createSequence(Seq(1,"some text",99)))
+	 		{
+	         _.int("x",1234).int("y",9999).string("name","Dino")
+	         .document("mydoc", <somedoc>{str}</somedoc>)
+	         .sequence("list",conn.createSequence(Seq(1,"some text",99)))
 	 		} 
 	    )
 	
