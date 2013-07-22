@@ -146,7 +146,7 @@ def main(args: Array[String]): Unit = {
 	{
 	  println("----alternate binding method-------")
 	  
-	  val str="my text!!"
+	  val rows=for (x<- 1 to 3) yield <row>{x}</row>
 	 
 	  val ret2=toSeqAnyRef(conn.executeQueryWith(""" 
 	 		declare variable $x as xs:integer external;
@@ -157,7 +157,7 @@ def main(args: Array[String]): Unit = {
 	 		($name,' ',$x+$y,'list=',for $i in $list return <x>{$i}</x>,$mydoc)""")
 	 		{
 	         _.int("x",1234).int("y",9999).string("name","Dino")
-	         .document("mydoc", <somedoc>{str}</somedoc>)
+	         .document("mydoc", <somedoc>{rows}</somedoc>)
 	         .sequence("list",conn.createSequence(Seq(1,"some text",99)))
 	 		} 
 	    )

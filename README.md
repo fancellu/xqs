@@ -268,7 +268,7 @@ val seq:XQResultSequence=conn("1 to 3")
 
 ##Alternate binding method
 ```scala
-val str="my text!!"
+val rows=for (x<- 1 to 3) yield <row>{x}</row>
 	 
 val ret2=toSeqAnyRef(conn.executeQueryWith(""" 
  		declare variable $x as xs:integer external;
@@ -298,7 +298,11 @@ ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 >       class scala.xml.Elem
 >     <x>99</x>
 >       class scala.xml.Elem
->     <somedoc>my text!!</somedoc>
+>     <somedoc>
+>       <row>1</row>
+>       <row>2</row>
+>       <row>3</row>
+>     </somedoc>
 >       class scala.xml.Elem
 
 ##A few items of note
