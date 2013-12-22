@@ -9,6 +9,9 @@ It provides Scala interfaces, metaphors and conversions that lead to tighter cod
 
 It should work with any compliant **XQJ** driver, having already been tested against the **[XQJ.net](http://xqj.net)** drivers ( **BaseX**, **Sedna**, **eXist**, **Marklogic** ) and **Saxon**
 
+*Works with BaseX XQJ Embedded mode too* 
+[https://gist.github.com/fancellu/7815238](https://gist.github.com/fancellu/7815238)
+
 Requires Scala 2.10+
 
 Firstly, make sure that your **XQJ** drivers jars are included and are working.
