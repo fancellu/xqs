@@ -313,6 +313,7 @@ ret2 foreach(x=>println(x+"\n\t"+x.getClass))
 The connection is never closed by XQS, in the same way in that it is not opened by it either. That is up to you.
 Expressions and ResultSequences are closed as soon as the ResultSequence is pulled into Scala, so it shouldn't leave dangling objects leading to memory leaks, even when we throw an exception.
 
-*Any crimes I have committed against the gods of Scala I apologise for. Still getting my head around the power and majesty of Scala. If I had more time I'm sure I could made it smaller.*
+*Any feedback gratefully received. Do tell if you are using XQS in your project. 
+Thanks.*
 
 ## *A big thank you to Charles Foster of [XQJ.net](http://xqj.net) for the inspiration* ##
