@@ -27,7 +27,6 @@ Then in your Scala include in the following:
 
 
 	import com.felstar.xqs.XQS._
-	import com.felstar.xqs.XQS.AllImplicits._
 
 The next few steps are very familiar to any XQJ Developer:
 

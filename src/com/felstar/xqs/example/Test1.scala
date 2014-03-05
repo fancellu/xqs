@@ -1,10 +1,9 @@
 package com.felstar.xqs.example
 
-import xml.Attribute
-import xml.Elem
-import xml.PrettyPrinter
+import scala.xml.Attribute
+import scala.xml.Elem
+import scala.xml.PrettyPrinter
 import com.felstar.xqs.XQS._
-import com.felstar.xqs.XQS.AllImplicits._
 
 import javax.xml.xquery.XQResultSequence
 
@@ -15,7 +14,10 @@ object Test1{
 def main(args: Array[String]): Unit = {
   
   	//val source = new net.sf.saxon.xqj.SaxonXQDataSource()
-  	val source= new net.xqj.basex.BaseXXQDataSource()
+ //   System.loadLibrary ( "zorba_api" );
+  	//val source= new net.xqj.basex.BaseXXQDataSource()
+  	val source= new net.xqj.basex.local.BaseXXQDataSource()
+    //val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
   	//val source= new net.xqj.sedna.SednaXQDataSource()
   	//val source= new  net.xqj.exist.ExistXQDataSource()
   	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
@@ -34,14 +36,15 @@ def main(args: Array[String]): Unit = {
 	if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
 		source.setProperty("serverName", "localhost")
 		source.setProperty("port", "8003")
-		source.setProperty("mode", "conformance")
+		source.setProperty("mode", "xdbc")
 	}
 
 	// Change USERNAME and PASSWORD values
-	val USERNAME="USERNAME"
-	val PASSWORD="PASSWORD"
+	val USERNAME="admin"
+	val PASSWORD="chromestar"
 
-	val conn = source.getConnection(USERNAME, PASSWORD) 
+	val conn = if (source.isInstanceOf[net.xqj.basex.local.BaseXXQDataSource]) 
+	  source.getConnection else source.getConnection(USERNAME, PASSWORD) 
 
 	println("-----1 to 4 as strings----------")
 
@@ -65,16 +68,28 @@ def main(args: Array[String]): Unit = {
 	println("----above < 100 with filter-----------")
 	println(decimals filter (_<100) mkString(", "))
 
+	// ML numberformat exception when not in conformance
+	{
+	  println("----numberformat-----------")
+	 val refs = toSeqAnyRef(conn("(44.4,<xx/>)"))
+	  refs.foreach{
+		 case x: java.lang.Number => println(x.doubleValue + 1000)
+		 case x: Elem => println("Element " + x)
+		 case x: Attribute => println("Attribute " + x)
+		 case x => println(x + " " + x.getClass)
+	 }
+	}
+	
 	println("----complex sequence-----------")
 	val refs = toSeqAnyRef(conn("""(1 to  5,44.444,<thing>{10 to 12}</thing>,
 	    'xxx',<root attr='hello'>somet<mixed>MIX</mixed>hing</root>,
 	    <thing attr='alone'/>/@*)"""))
-	refs.foreach(_ match {
+	refs.foreach{
 	 case x: java.lang.Number => println(x.doubleValue + 1000)
 	 case x: Elem => println("Element " + x)
 	 case x: Attribute => println("Attribute " + x)
 	 case x => println(x + " " + x.getClass)
-	})
+	}
 
 	if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
 		println("----db query-----------")
@@ -182,6 +197,13 @@ def main(args: Array[String]): Unit = {
 	 sum foreach(println)
 	 // first sequence is not consumed via Scala, so needs to be closed by hand
 	 closeResultSequence(seq) 
+	}
+	
+	{
+	 println("----XXXX--------") 
+	 val ret=toSeqAnyRef(conn("(./root()/root/local-name(),<added>added</added>)", <root><empty></empty></root>))		
+	 ret foreach(println)
+	  
 	}
 	
 	println("----printing expression map, should be empty----")

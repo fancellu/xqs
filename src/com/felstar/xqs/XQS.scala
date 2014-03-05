@@ -29,8 +29,6 @@ import javax.xml.datatype.XMLGregorianCalendar
  */
 object XQS {
 
-  import AllImplicits._
-  
   val tFactory = javax.xml.transform.TransformerFactory.newInstance
   val builderFactory= DocumentBuilderFactory.newInstance();
 
@@ -131,10 +129,9 @@ object XQS {
     }
   
   implicit def toSeqXML(seq: Seq[String]):Seq[scala.xml.Elem] = seq.map(XML.loadString)
-  implicit def toSeqXML(s: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(s))  
+  implicit def toSeqXML(s: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(s))
   
- trait ImplicitXQConnection{
-  implicit class MyXQConnection(val conn:XQConnection) {   
+  implicit class MyXQConnection(val conn:XQConnection) extends AnyVal {   
     def executeQuery(query:String)=execute(conn.prepareExpression(query))
     def executeQuery(query:java.io.InputStream)=execute(conn.prepareExpression(query))
     def executeQuery(query:java.io.Reader )=execute(conn.prepareExpression(query))    
@@ -174,15 +171,13 @@ object XQS {
     def apply(query:java.io.InputStream)=executeQuery(query)
     def apply(query:java.io.Reader)=executeQuery(query)
   }
- }
   
-  trait ImplicitXQExpression  {    
-     
-   implicit class MyXQExpression[A <:XQPreparedExpression](val expr:A) {
+ 
+   implicit class MyXQExpression[A <:XQPreparedExpression](val expr:A) extends AnyVal{
      def execute(): XQResultSequence=XQS.execute(expr)
    }
-    
-   implicit class  MyXQDynamicContext[A <:XQDynamicContext](val context:A) {    
+  
+   implicit class  MyXQDynamicContext[A <:XQDynamicContext](val context:A) extends AnyVal{    
      
     def document(varName:javax.xml.namespace.QName, value:String , baseURI:String)= {
       context.bindDocument(varName, value, baseURI, null);context
@@ -256,7 +251,8 @@ object XQS {
        context.bindObject(varName,xmlgc,null);context
      }
    }
-  }
   
-  object AllImplicits extends ImplicitXQConnection with ImplicitXQExpression  
+
+  // left here to not break anything, but now not needed
+  object AllImplicits 
 }
