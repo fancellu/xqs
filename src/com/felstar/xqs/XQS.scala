@@ -68,11 +68,15 @@ object XQS {
     adapter.rootElem
   }
   
+  implicit def toScala(nodes: _root_.org.w3c.dom.NodeList):Seq[Node] = {
+    for (x<-0 until nodes.getLength) yield toScala(nodes.item(x))
+  } 
+  
    implicit def toDom(node: scala.xml.Node) = {
     val str=node.buildString(false)
     builderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(str)))
   }
-
+   
   implicit def toDomSource(node: scala.xml.Node): DOMSource =new DOMSource(toDom(node))
    
   implicit def toScala(attr: org.w3c.dom.Attr): Attribute 
