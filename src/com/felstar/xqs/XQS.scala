@@ -1,12 +1,12 @@
 package com.felstar.xqs
 
 import java.io.StringReader
-import xml.Attribute
-import xml.Node
-import xml.Null
-import xml.Text
-import xml.XML
-import xml.parsing.NoBindingFactoryAdapter
+import scala.xml.Attribute
+import scala.xml.Node
+import scala.xml.Null
+import scala.xml.Text
+import scala.xml.XML
+import scala.xml.parsing.NoBindingFactoryAdapter
 import org.xml.sax.InputSource
 import javax.xml.namespace.QName
 import javax.xml.parsers.DocumentBuilderFactory
@@ -62,14 +62,17 @@ object XQS {
   
   implicit def toQName(name: String): QName = new QName(name)
     
-  implicit def toScala(dom: _root_.org.w3c.dom.Node): Node = {
+  implicit def toScala(dom: _root_.org.w3c.dom.Node): scala.xml.NodeSeq = {
+    if (dom==null) return scala.xml.NodeSeq.Empty
     val adapter = new NoBindingFactoryAdapter
     tFactory.newTransformer().transform(new DOMSource(dom), new SAXResult(adapter))
     adapter.rootElem
   }
   
-  implicit def toScala(nodes: _root_.org.w3c.dom.NodeList):Seq[Node] = {
-    for (x<-0 until nodes.getLength) yield toScala(nodes.item(x))
+  implicit def toScala(nodes: _root_.org.w3c.dom.NodeList):scala.xml.NodeSeq = {
+    if (nodes==null||nodes.getLength()==0) return scala.xml.NodeSeq.Empty
+    val seqs=for (x<-0 until nodes.getLength) yield toScala(nodes.item(x))
+    seqs.flatten
   } 
   
    implicit def toDom(node: scala.xml.Node) = {
