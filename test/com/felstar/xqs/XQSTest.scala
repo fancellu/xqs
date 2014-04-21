@@ -36,8 +36,27 @@ class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
 }
   // using embedded basex 
   
- val conn =  new net.xqj.basex.local.BaseXXQDataSource().getConnection
-  
+ //val source= new net.xqj.marklogic.MarkLogicXQDataSource() 
+  //val source=  new net.sf.saxon.xqj.SaxonXQDataSource()
+ val source= new net.xqj.basex.local.BaseXXQDataSource()
+ 
+ if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
+		source.setProperty("serverName", "localhost")
+		source.setProperty("port", "8003")
+		source.setProperty("mode", "xdbc")
+		println("Its ML")
+	}
+ 
+// val conn =  source.getConnection
+ 
+	// Change USERNAME and PASSWORD values
+	val USERNAME="admin"
+	val PASSWORD="chromestar"
+
+	val conn = source.getConnection
+	//val conn = source.getConnection(USERNAME, PASSWORD) 
+ 
+	
  describe("ResultSequence") {
     it ("should close after use") {
       {       
@@ -90,7 +109,7 @@ class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
     it ("should close after use, even with a thrown exception"){
     {
      info ("malformed decimals") 
-     val rs=conn("1.0,2.1,'cat'")
+     val rs=conn("(1.0,2.1,'cat')")
      val thrown=intercept[NumberFormatException]
      {
       val decimals:Seq[BigDecimal]=rs     
@@ -110,9 +129,9 @@ class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
      info ("malformed XML")  
      val rs=conn("<root>xxx</root>,'now fail'")
      val thrown=intercept[Exception]
-     {
+     {      
       val xml:Seq[Elem]=rs     
-     }         
+     }              
      getExpressionMap shouldBe empty
     }
    }
@@ -174,7 +193,7 @@ class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
       expr2.sequence("list",conn.createSequence((1 to 5).toList))
       val sum2:Seq[Int]=expr2.execute();  
       sum2.head shouldBe 15
-    }
+    }    
    
    it ("should leave no dangling sequences or expressions at the end"){  
     getExpressionMap shouldBe empty    
