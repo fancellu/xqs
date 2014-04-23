@@ -70,9 +70,8 @@ object XQS {
   }
   
   implicit def toScala(nodes: _root_.org.w3c.dom.NodeList):scala.xml.NodeSeq = {
-    if (nodes==null||nodes.getLength()==0) return scala.xml.NodeSeq.Empty
-    val seqs=for (x<-0 until nodes.getLength) yield toScala(nodes.item(x))
-    seqs.flatten
+   if (nodes==null) return scala.xml.NodeSeq.Empty
+   (0 until nodes.getLength) flatMap{x=>toScala(nodes.item(x))}
   } 
   
    implicit def toDom(node: scala.xml.Node) = {
@@ -136,7 +135,9 @@ object XQS {
     }
   
   implicit def toSeqXML(seq: Seq[String]):Seq[scala.xml.Elem] = seq.map(XML.loadString)
-  implicit def toSeqXML(s: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(s))
+  implicit def toSeqXMLNodeSeq(seq: Seq[String]):scala.xml.NodeSeq = toSeqXML(seq)
+  implicit def toSeqXML(seq: XQSequence):Seq[scala.xml.Elem] = toSeqXML(toSeqString(seq))  
+  implicit def toSeqXMLNodeSeq(seq: XQSequence):scala.xml.NodeSeq = toSeqXML(seq)
   
   implicit class MyXQConnection(val conn:XQConnection) extends AnyVal {   
     def executeQuery(query:String)=execute(conn.prepareExpression(query))
