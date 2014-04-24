@@ -24,7 +24,7 @@ import javax.xml.datatype.XMLGregorianCalendar
  * Comments and suggestions are welcome. Use this file as you will.
  * Would be nice if I got attribution. Thanks. 
  * @author Dino Fancellu (Felstar Ltd)
- * @version 0.84
+ * @version 0.89
  * 
  */
 object XQS {
