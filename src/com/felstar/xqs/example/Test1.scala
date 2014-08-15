@@ -23,21 +23,21 @@ def main(args: Array[String]): Unit = {
   	//val source= new org.zorbaxquery.api.xqj.ZorbaXQDataSource()
     //val source= new net.xqj.marklogic.MarkLogicXQDataSource()
 
-	if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
-		source.setProperty("serverName", "localhost")
-		source.setProperty("port", "1984")
-	}
-	else
-	if (source.isInstanceOf[net.xqj.sedna.SednaXQDataSource]) {
-		source.setProperty("serverName", "localhost")
-		source.setProperty("databaseName", "testdb")
-	}
-   else
-	if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
-		source.setProperty("serverName", "localhost")
-		source.setProperty("port", "8003")
-		source.setProperty("mode", "xdbc")
-	}
+//	if (source.isInstanceOf[net.xqj.basex.BaseXXQDataSource]) {
+//		source.setProperty("serverName", "localhost")
+//		source.setProperty("port", "1984")
+//	}
+//	else
+//	if (source.isInstanceOf[net.xqj.sedna.SednaXQDataSource]) {
+//		source.setProperty("serverName", "localhost")
+//		source.setProperty("databaseName", "testdb")
+//	}
+//   else
+//	if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
+//		source.setProperty("serverName", "localhost")
+//		source.setProperty("port", "8003")
+//		source.setProperty("mode", "xdbc")
+//	}
 
 	// Change USERNAME and PASSWORD values
 	val USERNAME="admin"
