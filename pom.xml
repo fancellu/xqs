@@ -11,8 +11,8 @@
 
 	<build>
 		<finalName>basex-xqs-example</finalName>
-		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
@@ -23,14 +23,7 @@
 						<goals>
 							<goal>compile</goal>
 							<goal>testCompile</goal>
-						</goals>
-						<configuration>
-							<args>
-								<arg>-make:transitive</arg>
-								<arg>-dependencyfile</arg>
-								<arg>${project.build.directory}/.scala_dependencies</arg>
-							</args>
-						</configuration>
+						</goals>					
 					</execution>
 				</executions>
 			</plugin>
