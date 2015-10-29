@@ -3,6 +3,13 @@
 
 *Author: [Dino Fancellu](http://dinofancellu.com)*
 
+To use as a library, just pull in from
+
+[https://jitpack.io/#fancellu/xqs](https://jitpack.io/#fancellu/xqs)
+
+[![Build Status](https://travis-ci.org/fancellu/xqs.svg?branch=master)](https://travis-ci.org/fancellu/xqs)
+
+
 **XQS** is a Scala Library to invoke XQuery against an XML DataSource such as MarkLogic, eXist, BaseX and Sedna as well as Saxon, Zorba and Oracle XDB while eliminating vendor lock in.
 
 It provides Scala interfaces, metaphors and conversions that lead to tighter code and less boilerplate 
@@ -17,11 +24,6 @@ Requires Scala 2.10+
 Firstly, make sure that your **XQJ** drivers jars are included and are working.
 Perhaps run some java to make sure its all up and running.
 
-Then add
-
-> com.felstar.xqs.XQS.scala 
-
-to your code base. XQS is implemented in one file!
 
 Then in your Scala include in the following:
 
