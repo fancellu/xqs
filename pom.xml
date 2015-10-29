@@ -7,7 +7,7 @@
 	<groupId>com.felstar</groupId>
 	<artifactId>xqs</artifactId>
 	<packaging>jar</packaging>
-	<version>0.80</version>
+	<version>0.81</version>
 
 	<build>
 		<finalName>xqs</finalName>
