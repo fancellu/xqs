@@ -41,7 +41,7 @@ def main(args: Array[String]): Unit = {
 
 	// Change USERNAME and PASSWORD values
 	val USERNAME="admin"
-	val PASSWORD="chromestar"
+	val PASSWORD="PASSWORD"
 
 	val conn = if (source.isInstanceOf[net.xqj.basex.local.BaseXXQDataSource]) 
 	  source.getConnection else source.getConnection(USERNAME, PASSWORD) 

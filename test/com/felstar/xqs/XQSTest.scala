@@ -1,7 +1,6 @@
 package com.felstar.xqs
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
 import xml.Attribute
 import xml.Elem
 import com.felstar.xqs.XQS._
@@ -11,9 +10,10 @@ import javax.xml.xquery.XQException
 import scala.xml.Text
 import scala.xml.Null
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Matchers
 
 
-class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
+class XQSTest extends FunSpec with Matchers with BeforeAndAfterAll{
 
   private def trimShouldBe(actual: Seq[xml.Node], expected: Seq[xml.Node]):Unit={
      actual.size shouldBe expected.size   
@@ -51,7 +51,7 @@ class XQSTest extends FunSpec with ShouldMatchers with BeforeAndAfterAll{
  
 	// Change USERNAME and PASSWORD values
 	val USERNAME="admin"
-	val PASSWORD="chromestar"
+	val PASSWORD="PASSWORD"
 
 	val conn = source.getConnection
 	//val conn = source.getConnection(USERNAME, PASSWORD) 
