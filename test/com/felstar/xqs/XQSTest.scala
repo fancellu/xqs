@@ -40,12 +40,12 @@ class XQSTest extends FunSpec with Matchers with BeforeAndAfterAll{
   //val source=  new net.sf.saxon.xqj.SaxonXQDataSource()
  val source= new net.xqj.basex.local.BaseXXQDataSource()
  
- if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
-		source.setProperty("serverName", "localhost")
-		source.setProperty("port", "8003")
-		source.setProperty("mode", "xdbc")
-		println("Its ML")
-	}
+// if (source.isInstanceOf[net.xqj.marklogic.MarkLogicXQDataSource]) {
+//		source.setProperty("serverName", "localhost")
+//		source.setProperty("port", "8003")
+//		source.setProperty("mode", "xdbc")
+//		println("Its ML")
+//	}
  
 // val conn =  source.getConnection
  

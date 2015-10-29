@@ -1,11 +1,12 @@
-package com.felstar.xqs.example
+package com.felstar.xqs
 
 import scala.xml.Attribute
 import scala.xml.Elem
 import scala.xml.PrettyPrinter
 import com.felstar.xqs.XQS._
-
 import javax.xml.xquery.XQResultSequence
+import scala.math.BigDecimal.int2bigDecimal
+import scala.xml.NodeSeq.seqToNodeSeq
 
 //Note, no mention of Dom/Java constructs, just Scala
 

@@ -1,9 +1,8 @@
-package com.felstar.xqs.example
+package com.felstar.xqs
 
 import com.felstar.xqs.XQS._
 import com.felstar.xqs.XQS.AllImplicits._
 import scala.xml.PrettyPrinter
-
 import com.xqj2.XQConnection2
 
 object BaseXEmbeddedXQS extends App {
